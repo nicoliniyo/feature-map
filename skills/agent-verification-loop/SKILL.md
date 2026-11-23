@@ -81,10 +81,20 @@ Levanta la aplicación localmente en modo desarrollo o pruebas utilizando la her
    - ¿Se mantuvieron intactas las funcionalidades adyacentes?
 3. Si la verificación falla, **no entregues el código**. Analiza la traza real, ajusta e itera hasta que la prueba pase de forma determinista.
 
+### Cuando el entorno bloquea la ejecución (Fases 2 y 4)
+"La verificación falla" significa que la prueba se ejecutó y dio un resultado incorrecto. Si la prueba **no se puede ejecutar** (permiso denegado, servidor que no arranca, protocolo `file://` bloqueado, simulador ausente), recorre esta tabla en orden: la primera fila siempre aplica si hubo una denegación, y de las demás usa la primera que puedas ejecutar.
+
+| Situación observable | Acción |
+|---|---|
+| Un permiso fue denegado (la herramienta respondió con denegación del usuario o del modo de permisos) | No repitas esa acción por otra vía (script, otra herramienta, primer plano en vez de segundo plano): la denegación es una decisión del usuario. Pasa a las filas siguientes solo con vías que no hagan lo denegado. |
+| Fallo técnico (puerto ocupado, `file://` bloqueado, proceso que no arranca) y existe una vía alternativa con límite de tiempo (ej. otro puerto, un script que levanta el servidor, ejecuta Playwright/CDP headless y lo detiene, con `timeout 60`) | Úsala como reproducción y verificación. Registra en el informe qué vía alternativa usaste. |
+| Existe una prueba más cercana al usuario que la lectura de código y que no requiere lo denegado (test de integración, ejecución del binario, `elementFromPoint` en un DOM cargado por script) | Ejecútala antes y después del cambio y entrégala como evidencia parcial. |
+| Ninguna vía de ejecución funciona | Entrega el cambio marcado como **NO VERIFICADO**: escribe esas palabras en la primera línea del informe, indica qué vía falló y con qué error exacto, y da los pasos concretos (comando, URL, selector, resultado esperado antes y después) para que el usuario verifique. Si la causa fue un permiso, nombra el permiso que habría que conceder. |
+
 ### Fase 5: Informe de Cierre
 Presenta al usuario un resumen conciso que incluya:
 - Causa raíz verificada (con referencia a archivo y línea).
-- Evidencia de reproducción inicial vs. verificación final.
+- Evidencia de reproducción inicial vs. verificación final, o el marcador **NO VERIFICADO** con los pasos de verificación pendientes.
 - `FEATURE_MAP.md`: entradas creadas o actualizadas, o la línea de omisión del Flujo de Trabajo 1.
 
 ---
