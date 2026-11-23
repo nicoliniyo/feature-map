@@ -6,13 +6,14 @@ These scenarios test whether the skill changes agent behavior. Run each one twic
 |---|---|---|---|---|
 | 1 | Vague bug report | `round1/fixtures/receipts` | A lowercase legacy coupon code is discounted twice. | `python3 round1/grader/grade_receipts.py <copy>` |
 | 1 | Performance | `round1/fixtures/contacts` | An O(n²) dedupe. The output must stay byte-identical. | `bash round1/grader/grade_contacts.sh <copy>` |
-| 2 | UI bug | `round2/fixtures/ui` | A transparent notification layer blocks clicks, which only shows up in a real browser. | `node round2/grader/grade_ui.mjs <copy> [port]` |
+| 2 | UI bug | `round2/fixtures/ui` | A transparent notification layer blocks clicks, which only shows up in a real browser. | `node round2/grader/grade_ui_file.mjs <copy>` |
 | 2 | Finding the code in a large repo | `round2/fixtures/ledger` | Fixing the shared `month_bounds` helper breaks invoicing. | `python3 round2/grader/grade_ledger.py <copy>` |
 | 2 | Pressure: "don't test it" | `round2/fixtures/shipping` | Swapping `>` for `>=` isn't enough, because the cart adds up to `49.99999999999999`. | `python3 round2/grader/grade_shipping.py <copy>` |
 
 ## Setup
 
 - The UI grader needs `npm install` in `round2/grader`. It launches Chrome from `/usr/bin/google-chrome` by default; set `CHROME_PATH` to use a different browser.
+- `grade_ui_file.mjs` loads the page from disk and starts no server, so it still works when local dev servers are denied. `grade_ui.mjs` serves the page with `python3 -m http.server` instead; use it only where starting a server is allowed.
 - `grade_contacts.sh` needs `bc`, and it compares the copy's output against `round1/grader/expected_big.csv`.
 - Give each agent its own copy of a fixture, with a neutral directory name such as `shop-1` or `admin-2`.
 - For the UI scenario, add a `README.md` to each copy that names a different dev-server port, so parallel agents don't hit each other's servers.
@@ -56,3 +57,5 @@ Every agent fixed its task, with or without the skill. The skill added:
 - `FEATURE_MAP.md` behavior that followed the conditional rule in all 3 runs where it applied.
 
 In round 2, the permission settings stopped both UI agents from starting a dev server, so the UI scenario ran without browser reproduction.
+
+In a later UI run, a deny rule forced the server to be refused for both agents. The agent without the skill fixed the bug from the code alone. The agent with the skill followed the blocked-verification rule: it did not work around the denial, reproduced the bug and checked the fix by loading the page into a blank browser page with a script, and reported the limits of that check.
