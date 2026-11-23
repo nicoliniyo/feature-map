@@ -1,0 +1,5 @@
+/* Notifications stack in the lower part of the viewport */
+.toast-root { position: fixed; left: 0; right: 0; bottom: 0; height: 60vh;
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;
+  padding: 16px; z-index: 1000; }
+.toast { background: #223; color: #fff; padding: 10px 14px; border-radius: 6px; margin-top: 8px; }

@@ -1,0 +1,12 @@
+acme: $13,485.46
+globex: $9,027.03
+initech: $18,409.05
+umbrella: $10,465.00
+acme: $12,440.91
+globex: $8,498.22
+initech: $7,627.34
+umbrella: $16,660.08
+acme: $13,499.65
+globex: $16,320.59
+initech: $14,461.23
+umbrella: $10,920.71
