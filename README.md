@@ -1,4 +1,4 @@
-# agent-verification-loop
+# feature-map
 
 A skill for Claude Code (and other agents that read `SKILL.md`) that has an agent reproduce, verify and harden code changes, instead of guessing at a fix:
 
@@ -12,12 +12,12 @@ The skill is written in Spanish and is based on the Pstack/Dune architecture by 
 ## Install
 
 ```bash
-git clone https://github.com/nicoliniyo/agent-verification-loop.git
+git clone https://github.com/nicoliniyo/feature-map.git
 mkdir -p ~/.claude/skills
-cp -r agent-verification-loop/skills/agent-verification-loop ~/.claude/skills/
+cp -r feature-map/skills/feature-map ~/.claude/skills/
 ```
 
-In Claude Code, invoke it with `/agent-verification-loop`, or let Claude load it automatically when its description matches the task.
+In Claude Code, invoke it with `/feature-map`, or let Claude load it automatically when its description matches the task.
 
 ## Evaluation
 

@@ -1,5 +1,5 @@
 ---
-name: agent-verification-loop
+name: feature-map
 description: Úsala al corregir bugs, optimizar rendimiento o implementar funcionalidades donde el cambio debe demostrarse ejecutando la app real (reproducir antes, verificar después con evidencia), al recibir reportes vagos ("va lento", capturas sin contexto), al crear o mantener un FEATURE_MAP.md, o al convertir errores recurrentes de agentes en guardrails duros (linters, checks de CI). Verificación de bucle cerrado basada en la arquitectura Pstack/Dune de Lauren Tan.
 ---
 
