@@ -112,6 +112,29 @@ Cuando detectes que un agente (tú mismo o un subagente) comete un error estruct
 
 ---
 
+## Integración con spec-driven-development y anchored-decisions
+
+Aplica esta sección solo si el proyecto ya usa alguna de estas skills: hay un `spec/SPEC.md` o `tasks/todo.md` (spec-driven-development), o un `DECISIONS.md` (anchored-decisions). Si no hay ninguna, ignórala.
+
+Cada skill responde una pregunta distinta; no copies el contenido de una en otra:
+
+| Skill | Pregunta | Archivo |
+|---|---|---|
+| spec-driven-development | ¿Qué construimos y cuándo está terminado? | `spec/SPEC.md`, `tasks/` |
+| feature-map | ¿Dónde vive la funcionalidad, cómo se llega a ella y funcionó el cambio? | `FEATURE_MAP.md` |
+| anchored-decisions | ¿Por qué está construido así y sigue siendo cierto? | `DECISIONS.md` |
+
+- **Las aprobaciones son de la spec, la autonomía es de la implementación.** Las pausas de aprobación humana de spec-driven-development aplican a la spec y al plan. Las cinco fases de esta skill se ejecutan sin esperar aprobación dentro de cada tarea ya aprobada.
+- **El `Verify:` de cada tarea usa el mapa.** Cuando una tarea de `tasks/todo.md` toque una funcionalidad con entrada en `FEATURE_MAP.md`, su verificación es la ruta de navegación y los selectores de esa entrada (Fases 2 y 4).
+- **La estructura del proyecto vive en un solo sitio.** La sección "Project Structure" de la spec describe solo la estructura de alto nivel; la ubicación de cada funcionalidad vive en el mapa.
+- **Los invariantes críticos son decisiones.** Si un invariante de una entrada del mapa no debe volver a discutirse, regístralo como un `D-xx` en `DECISIONS.md` (con anclas y `Why not`) y enlaza su id desde la línea del invariante.
+- **Los guardrails son anclas.** Una regla de linter o de CI creada en el Flujo de Trabajo 3 es un ancla fuerte para su decisión (ej. `config: .eslintrc.json#no-restricted-imports`).
+- **El nivel de verificación pasa a `Verified:`.** Verificación completa antes/después → `Verified: <fecha> (local)` (o el entorno usado). **VERIFICACIÓN PARCIAL** → `(code-only)`. **NO VERIFICADO** → el registro queda en `PROPOSED`.
+- **Cierre en el mismo commit.** Actualiza la entrada del mapa, actualiza `Verified:` en las decisiones afectadas (o sustitúyelas con un registro nuevo) y pasa a `ACTIVE` las decisiones planificadas.
+- **El mapa también se comprueba.** Si `anchor-check` está disponible, ejecútalo antes del Informe de Cierre: verifica que la ubicación de cada entrada exista y que cada selector `[attr="valor"]` siga apareciendo en el código. Corrige cualquier `BROK` de una entrada que tu cambio haya tocado y menciónalo en el informe.
+
+---
+
 ## Flujo de Trabajo 4: Autoevaluación de la Skill (Eval Loop)
 
 Cuando modifiques esta skill o configures la verificación para un nuevo repositorio, valida su efectividad mediante aislamiento:

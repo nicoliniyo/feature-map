@@ -19,6 +19,13 @@ cp -r feature-map/skills/feature-map ~/.claude/skills/
 
 In Claude Code, invoke it with `/feature-map`, or let Claude load it automatically when its description matches the task.
 
+## Works with
+
+- **[spec-driven-development](https://skills.sh/addyosmani/agent-skills/spec-driven-development)**: the spec and its approval gates decide what to build; this skill verifies each task in the real app, using `FEATURE_MAP.md` for the route and selectors.
+- **[anchored-decisions](https://github.com/nicoliniyo/anchored-decisions)**: records why a feature is built the way it is. Its `anchor-check` CLI also checks `FEATURE_MAP.md`, reporting entries whose code location or `data-testid`/`aria-label` selectors no longer exist.
+
+The skill's "Integración con spec-driven-development y anchored-decisions" section explains how they fit together. It applies only when the project already uses one of them.
+
 ## Evaluation
 
 The skill was tested in two rounds of paired subagent runs, each task done once with the skill and once without:
