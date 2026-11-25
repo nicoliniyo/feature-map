@@ -1,148 +1,148 @@
 ---
 name: feature-map
-description: Úsala al corregir bugs, optimizar rendimiento o implementar funcionalidades donde el cambio debe demostrarse ejecutando la app real (reproducir antes, verificar después con evidencia), al recibir reportes vagos ("va lento", capturas sin contexto), al crear o mantener un FEATURE_MAP.md, o al convertir errores recurrentes de agentes en guardrails duros (linters, checks de CI). Verificación de bucle cerrado basada en la arquitectura Pstack/Dune de Lauren Tan.
+description: Use when fixing bugs, optimizing performance or implementing features where the change must be proven by running the real app (reproduce before, verify after with evidence), when receiving vague reports ("it's slow", screenshots without context), when creating or maintaining a FEATURE_MAP.md, or when turning recurring agent mistakes into hard guardrails (linters, CI checks). Closed-loop verification based on Lauren Tan's Pstack/Dune architecture.
 ---
 
 # Agent Verification Loop & Guardrails
 
-Esta skill transforma al agente de un generador de código especulativo en un ingeniero autónomo capaz de **reproducir, verificar, demostrar y endurecer** cambios en el código base sin intervención humana constante (evitando que el usuario sea el cuello de botella).
+This skill turns the agent from a speculative code generator into an autonomous engineer able to **reproduce, verify, prove and harden** changes to the codebase without constant human intervention (so the user is not the bottleneck).
 
 ---
 
-## Principios Fundamentales
+## Core Principles
 
-1. **Cero adivinanzas (Read Before Hypothesizing):** Prohibido afirmar cuál es la causa raíz de un problema sin haber leído previamente los archivos exactos involucrados y trazado el flujo real de ejecución.
-2. **El camino más corto debe ser el mejor camino:** La estructura del código y los selectores deben estar documentados para que navegar y modificar una funcionalidad sea determinista.
-3. **Verificación de bucle cerrado (Closed-Loop):** Un cambio no está terminado cuando compila; está terminado cuando el agente ejecuta la aplicación real (como lo haría un usuario), reproduce el escenario y captura evidencia objetiva del antes y después.
-4. **Endurecimiento progresivo:** Las instrucciones en Markdown son *restricciones blandas* (el agente puede olvidarlas). Todo patrón de error recurrente debe convertirse en una *restricción dura* (regla de linter, verificación de dependencias o check en CI).
+1. **Zero guessing (Read Before Hypothesizing):** Never state the root cause of a problem without first reading the exact files involved and tracing the real execution flow.
+2. **The shortest path must be the best path:** Code structure and selectors must be documented so that navigating to and changing a feature is deterministic.
+3. **Closed-loop verification:** A change is not done when it compiles; it is done when the agent runs the real application (as a user would), reproduces the scenario and captures objective before-and-after evidence.
+4. **Progressive hardening:** Markdown instructions are *soft constraints* (the agent can forget them). Every recurring error pattern must become a *hard constraint* (a linter rule, a dependency check or a CI check).
 
 ---
 
-## Flujo de Trabajo 1: Creación y Mantenimiento del `FEATURE_MAP.md`
+## Workflow 1: Creating and Maintaining `FEATURE_MAP.md`
 
-Busca `FEATURE_MAP.md` en la raíz del proyecto o en `.agent/` y aplica la primera regla que se cumpla:
+Look for `FEATURE_MAP.md` in the project root or in `.agent/` and apply the first rule that matches:
 
-| Situación observable | Acción |
+| Observable situation | Action |
 |---|---|
-| `FEATURE_MAP.md` existe | Consúltalo en la Fase 1 y actualiza las entradas que tu cambio afecte. |
-| No existe **y** el proyecto tiene interfaz de usuario (web, móvil, escritorio, TUI) | Créalo antes de la Fase 2, como mínimo con la entrada de la funcionalidad que estás tocando. |
-| No existe **y** el proyecto tiene más de 15 archivos de código fuente | Créalo antes de la Fase 2, como mínimo con la entrada de la funcionalidad que estás tocando. |
-| Ninguna de las anteriores | No lo crees. En el Informe de Cierre escribe: "FEATURE_MAP.md omitido: proyecto sin UI y con ≤15 archivos fuente." |
+| `FEATURE_MAP.md` exists | Consult it in Phase 1 and update the entries your change affects. |
+| It does not exist **and** the project has a user interface (web, mobile, desktop, TUI) | Create it before Phase 2, with at least the entry for the feature you are touching. |
+| It does not exist **and** the project has more than 15 source files | Create it before Phase 2, with at least the entry for the feature you are touching. |
+| None of the above | Do not create it. In the Closing Report write: "FEATURE_MAP.md skipped: project has no UI and ≤15 source files." |
 
-Estructura de cada entrada:
+Structure of each entry:
 
 ```markdown
 # Feature Map
 
-## [Nombre de la Funcionalidad / Vista]
-- **Ubicación del código:** `ruta/al/directorio/co-localizado/`
-- **Ruta de navegación (Usuario):** Paso 1 -> Paso 2 -> Acción
-- **Atajos de teclado / Comandos:** `Cmd+K` / `npm run dev`
-- **Selectores deterministas (CDP / Playwright / Maestro):**
-  - Contenedor principal: `[data-testid="..."]`
-  - Acción disparadora: `button[aria-label="..."]`
-- **Proceso / Hilo de ejecución:** Main thread / Renderer / Server Action / Worker
-- **Invariantes críticos:** (ej. "No debe bloquear el hilo de renderizado > 16ms", "No importar módulos de servidor en cliente")
+## [Feature / View Name]
+- **Code location:** `path/to/co-located/directory/`
+- **Navigation path (user):** Step 1 -> Step 2 -> Action
+- **Keyboard shortcuts / commands:** `Cmd+K` / `npm run dev`
+- **Deterministic selectors (CDP / Playwright / Maestro):**
+  - Main container: `[data-testid="..."]`
+  - Triggering action: `button[aria-label="..."]`
+- **Process / execution thread:** Main thread / Renderer / Server Action / Worker
+- **Critical invariants:** (e.g. "Must not block the render thread > 16ms", "Do not import server modules in the client")
 ```
 
-### Reglas de mantenimiento del mapa:
-- Cada vez que crees una nueva funcionalidad o modifiques rutas/selectores, actualiza la entrada correspondiente en `FEATURE_MAP.md` dentro del mismo PR o conjunto de cambios.
-- Mantén todo el código relacionado con una funcionalidad co-localizado en un mismo directorio siempre que la arquitectura lo permita.
+### Map maintenance rules:
+- Whenever you create a new feature or change routes/selectors, update the matching entry in `FEATURE_MAP.md` in the same PR or change set.
+- Keep all code related to a feature co-located in a single directory whenever the architecture allows it.
 
 ---
 
-## Flujo de Trabajo 2: Protocolo de Verificación en Bucle Cerrado
+## Workflow 2: Closed-Loop Verification Protocol
 
-Ante cualquier tarea de corrección de bugs, optimización de rendimiento o nueva funcionalidad, ejecuta estrictamente estas 5 fases:
+For any bug fix, performance optimization or new feature, follow these 5 phases strictly:
 
-### Fase 1: Triaje y Localización Real
-1. Consulta `FEATURE_MAP.md` para identificar la ubicación exacta de la funcionalidad.
-2. Lee los archivos fuente relevantes y sus dependencias directas.
-3. Si el reporte es ambiguo (ej. una captura de pantalla o descripción vaga), cruza los elementos visuales con los selectores del mapa antes de formular una hipótesis.
+### Phase 1: Triage and Real Localization
+1. Consult `FEATURE_MAP.md` to identify the exact location of the feature.
+2. Read the relevant source files and their direct dependencies.
+3. If the report is ambiguous (e.g. a screenshot or a vague description), cross-check the visual elements against the map's selectors before forming a hypothesis.
 
-### Fase 2: Reproducción en Entorno Real
-Levanta la aplicación localmente en modo desarrollo o pruebas utilizando la herramienta nativa correspondiente al stack:
-- **Web / Electron:** Chrome DevTools Protocol (CDP), Playwright o Puppeteer (capturando logs de consola, errores de red, trazas de rendimiento/CPU y *heap snapshots*).
-- **Móvil (iOS / Android / Flutter):** Simuladores nativos (`xcrun simctl`, `adb`, `flutter test` / integración) con captura de estado y métricas de frames.
-- **Backend / CLI:** Ejecución directa del binario, endpoints reales o suites de integración contra entorno aislado.
+### Phase 2: Reproduction in a Real Environment
+Start the application locally in development or test mode, using the native tool for the stack:
+- **Web / Electron:** Chrome DevTools Protocol (CDP), Playwright or Puppeteer (capturing console logs, network errors, performance/CPU traces and *heap snapshots*).
+- **Mobile (iOS / Android / Flutter):** Native simulators (`xcrun simctl`, `adb`, `flutter test` / integration) capturing state and frame metrics.
+- **Backend / CLI:** Run the binary directly, hit real endpoints, or run integration suites against an isolated environment.
 
-*Requisito:* Captura evidencia del estado inicial (**Antes**) que demuestre el fallo o el comportamiento actual.
+*Requirement:* Capture evidence of the initial state (**Before**) that demonstrates the failure or the current behavior.
 
-### Fase 3: Implementación Atómica
-1. Aplica cambios pequeños, enfocados y fáciles de revertir.
-2. Evita comentarios históricos o narrativos innecesarios en el código; el código debe ser autoexplicativo y el historial de Git debe describir el porqué del commit.
-3. Respeta estrictamente el aislamiento de capas (ej. no mezclar lógica pesada de I/O en el hilo principal de renderizado UI).
+### Phase 3: Atomic Implementation
+1. Make small, focused changes that are easy to revert.
+2. Avoid unnecessary historical or narrative comments in the code; the code should explain itself and the Git history should describe why the commit was made.
+3. Strictly respect layer isolation (e.g. do not mix heavy I/O logic into the UI render thread).
 
-### Fase 4: Verificación de Evidencia (Después)
-1. Vuelve a ejecutar exactamente el mismo flujo de reproducción de la Fase 2.
-2. Compara métricas y comportamiento (**Antes vs. Después**):
-   - ¿Desaparecieron los errores de consola/excepciones?
-   - ¿Se mantiene el presupuesto de rendimiento (ej. $< 16\text{ms}$ por frame para $60\text{fps}$)?
-   - ¿Se mantuvieron intactas las funcionalidades adyacentes?
-3. Si la verificación falla, **no entregues el código**. Analiza la traza real, ajusta e itera hasta que la prueba pase de forma determinista.
+### Phase 4: Evidence Verification (After)
+1. Re-run exactly the same reproduction flow from Phase 2.
+2. Compare metrics and behavior (**Before vs. After**):
+   - Did the console errors/exceptions go away?
+   - Is the performance budget kept (e.g. < 16ms per frame for 60fps)?
+   - Did adjacent features stay intact?
+3. If verification fails, **do not deliver the code**. Analyze the real trace, adjust and iterate until the test passes deterministically.
 
-### Cuando el entorno bloquea la ejecución (Fases 2 y 4)
-"La verificación falla" significa que la prueba se ejecutó y dio un resultado incorrecto. Si la prueba **no se puede ejecutar** (permiso denegado, servidor que no arranca, protocolo `file://` bloqueado, simulador ausente), recorre esta tabla en orden: la primera fila siempre aplica si hubo una denegación, y de las demás usa la primera que puedas ejecutar.
+### When the environment blocks execution (Phases 2 and 4)
+"Verification fails" means the test ran and gave a wrong result. If the test **cannot be run** (permission denied, a server that will not start, the `file://` protocol blocked, a missing simulator), go through this table in order: the first row always applies if there was a denial, and of the others use the first one you can carry out.
 
-| Situación observable | Acción |
+| Observable situation | Action |
 |---|---|
-| Un permiso fue denegado (la herramienta respondió con denegación del usuario o del modo de permisos) | No repitas esa acción por otra vía (script, otra herramienta, primer plano en vez de segundo plano): la denegación es una decisión del usuario. Pasa a las filas siguientes solo con vías que no hagan lo denegado. |
-| Fallo técnico (puerto ocupado, `file://` bloqueado, proceso que no arranca) y existe una vía alternativa con límite de tiempo (ej. otro puerto, un script que levanta el servidor, ejecuta Playwright/CDP headless y lo detiene, con `timeout 60`) | Úsala como reproducción y verificación. Registra en el informe qué vía alternativa usaste. |
-| Existe una prueba más cercana al usuario que la lectura de código y que no requiere lo denegado (test de integración, ejecución del binario, `elementFromPoint` en un DOM cargado por script) | Ejecútala antes y después del cambio. Escribe **VERIFICACIÓN PARCIAL** en la primera línea del informe, lista qué no cubrió la prueba (ej. servidor real, otras vistas, almacenamiento real) y da los pasos concretos para la verificación completa. Si la causa fue un permiso, nombra el permiso que habría que conceder. |
-| Ninguna vía de ejecución funciona | Entrega el cambio marcado como **NO VERIFICADO**: escribe esas palabras en la primera línea del informe, indica qué vía falló y con qué error exacto, y da los pasos concretos (comando, URL, selector, resultado esperado antes y después) para que el usuario verifique. Si la causa fue un permiso, nombra el permiso que habría que conceder. |
+| A permission was denied (the tool responded with a denial from the user or the permission mode) | Do not retry that action by another route (a script, another tool, foreground instead of background): the denial is the user's decision. Move on to the following rows only with routes that do not do what was denied. |
+| A technical failure (port in use, `file://` blocked, a process that will not start) and a time-limited alternative route exists (e.g. another port, a script that starts the server, runs Playwright/CDP headless and stops it, with `timeout 60`) | Use it for reproduction and verification. Record in the report which alternative route you used. |
+| A test exists that is closer to the user than reading the code and does not need what was denied (an integration test, running the binary, `elementFromPoint` in a DOM loaded by a script) | Run it before and after the change. Write **PARTIAL VERIFICATION** on the first line of the report, list what the test did not cover (e.g. the real server, other views, real storage) and give the concrete steps for full verification. If the cause was a permission, name the permission that would need to be granted. |
+| No execution route works | Deliver the change marked **UNVERIFIED**: write that word on the first line of the report, say which route failed and with what exact error, and give the concrete steps (command, URL, selector, expected result before and after) for the user to verify. If the cause was a permission, name the permission that would need to be granted. |
 
-### Fase 5: Informe de Cierre
-Presenta al usuario un resumen conciso que incluya:
-- Causa raíz verificada (con referencia a archivo y línea).
-- Evidencia de reproducción inicial vs. verificación final, o el marcador **VERIFICACIÓN PARCIAL** / **NO VERIFICADO** con los pasos de verificación pendientes.
-- `FEATURE_MAP.md`: entradas creadas o actualizadas, o la línea de omisión del Flujo de Trabajo 1.
-
----
-
-## Flujo de Trabajo 3: De Error Recurrente a Restricción Dura (Guardrails)
-
-Cuando detectes que un agente (tú mismo o un subagente) comete un error estructural o viola una convención del proyecto:
-
-1. **Identifica el patrón:** ¿Es un problema de arquitectura (ej. importar módulos prohibidos entre carpetas), un antipatrón del framework (ej. efectos secundarios descontrolados) o una regresión de rendimiento?
-2. **Propón o implementa una restricción dura:**
-   - Regla personalizada en ESLint / Biome / Analyzer / Clippy.
-   - Verificación de grafo de dependencias en el pipeline de CI.
-   - Tipado estricto que haga imposible representar estados inválidos.
-3. **Objetivo:** Que el build o CI falle automáticamente en rojo si el patrón vuelve a introducirse, eliminando la necesidad de revisión humana para ese problema.
+### Phase 5: Closing Report
+Give the user a concise summary that includes:
+- The verified root cause (with a file and line reference).
+- Evidence of the initial reproduction vs. the final verification, or the **PARTIAL VERIFICATION** / **UNVERIFIED** marker with the pending verification steps.
+- `FEATURE_MAP.md`: entries created or updated, or the skip line from Workflow 1.
 
 ---
 
-## Integración con spec-driven-development y anchored-decisions
+## Workflow 3: From Recurring Error to Hard Constraint (Guardrails)
 
-Aplica esta sección solo si el proyecto ya usa alguna de estas skills: hay un `spec/SPEC.md` o `tasks/todo.md` (spec-driven-development), o un `DECISIONS.md` (anchored-decisions). Si no hay ninguna, ignórala.
+When you notice that an agent (you or a subagent) makes a structural mistake or breaks a project convention:
 
-Cada skill responde una pregunta distinta; no copies el contenido de una en otra:
+1. **Identify the pattern:** Is it an architecture problem (e.g. importing forbidden modules across folders), a framework anti-pattern (e.g. uncontrolled side effects) or a performance regression?
+2. **Propose or implement a hard constraint:**
+   - A custom rule in ESLint / Biome / Analyzer / Clippy.
+   - A dependency-graph check in the CI pipeline.
+   - Strict typing that makes invalid states impossible to represent.
+3. **Goal:** The build or CI fails automatically if the pattern is reintroduced, removing the need for human review of that problem.
 
-| Skill | Pregunta | Archivo |
+---
+
+## Integration with spec-driven-development and anchored-decisions
+
+Apply this section only if the project already uses one of these skills: there is a `spec/SPEC.md` or `tasks/todo.md` (spec-driven-development), or a `DECISIONS.md` (anchored-decisions). If there is neither, ignore it.
+
+Each skill answers a different question; do not copy one's content into another:
+
+| Skill | Question | File |
 |---|---|---|
-| spec-driven-development | ¿Qué construimos y cuándo está terminado? | `spec/SPEC.md`, `tasks/` |
-| feature-map | ¿Dónde vive la funcionalidad, cómo se llega a ella y funcionó el cambio? | `FEATURE_MAP.md` |
-| anchored-decisions | ¿Por qué está construido así y sigue siendo cierto? | `DECISIONS.md` |
+| spec-driven-development | What are we building, and when is it done? | `spec/SPEC.md`, `tasks/` |
+| feature-map | Where does the feature live, how do you reach it, and did the change work? | `FEATURE_MAP.md` |
+| anchored-decisions | Why is it built this way, and is that still true? | `DECISIONS.md` |
 
-- **Las aprobaciones son de la spec, la autonomía es de la implementación.** Las pausas de aprobación humana de spec-driven-development aplican a la spec y al plan. Las cinco fases de esta skill se ejecutan sin esperar aprobación dentro de cada tarea ya aprobada.
-- **El `Verify:` de cada tarea usa el mapa.** Cuando una tarea de `tasks/todo.md` toque una funcionalidad con entrada en `FEATURE_MAP.md`, su verificación es la ruta de navegación y los selectores de esa entrada (Fases 2 y 4).
-- **La estructura del proyecto vive en un solo sitio.** La sección "Project Structure" de la spec describe solo la estructura de alto nivel; la ubicación de cada funcionalidad vive en el mapa.
-- **Los invariantes críticos son decisiones.** Si un invariante de una entrada del mapa no debe volver a discutirse, regístralo como un `D-xx` en `DECISIONS.md` (con anclas y `Why not`) y enlaza su id desde la línea del invariante.
-- **Los guardrails son anclas.** Una regla de linter o de CI creada en el Flujo de Trabajo 3 es un ancla fuerte para su decisión (ej. `config: .eslintrc.json#no-restricted-imports`).
-- **El nivel de verificación pasa a `Verified:`.** Verificación completa antes/después → `Verified: <fecha> (local)` (o el entorno usado). **VERIFICACIÓN PARCIAL** → `(code-only)`. **NO VERIFICADO** → el registro queda en `PROPOSED`.
-- **Cierre en el mismo commit.** Actualiza la entrada del mapa, actualiza `Verified:` en las decisiones afectadas (o sustitúyelas con un registro nuevo) y pasa a `ACTIVE` las decisiones planificadas.
-- **El mapa también se comprueba.** Si `anchor-check` está disponible, ejecútalo antes del Informe de Cierre: verifica que la ubicación de cada entrada exista y que cada selector `[attr="valor"]` siga apareciendo en el código. Corrige cualquier `BROK` de una entrada que tu cambio haya tocado y menciónalo en el informe.
+- **Approvals belong to the spec; autonomy belongs to implementation.** spec-driven-development's human approval gates apply to the spec and the plan. This skill's five phases run without waiting for approval inside each already-approved task.
+- **Each task's `Verify:` uses the map.** When a task in `tasks/todo.md` touches a feature that has an entry in `FEATURE_MAP.md`, its verification is that entry's navigation path and selectors (Phases 2 and 4).
+- **Project structure lives in one place.** The spec's "Project Structure" section describes only the top-level layout; each feature's location lives in the map.
+- **Critical invariants are decisions.** If an invariant in a map entry must not be re-argued, record it as a `D-xx` in `DECISIONS.md` (with anchors and a `Why not`) and link its id from the invariant line.
+- **Guardrails are anchors.** A linter or CI rule created in Workflow 3 is a strong anchor for its decision (e.g. `config: .eslintrc.json#no-restricted-imports`).
+- **The verification level goes into `Verified:`.** Full before/after verification → `Verified: <date> (local)` (or the environment used). **PARTIAL VERIFICATION** → `(code-only)`. **UNVERIFIED** → the record stays `PROPOSED`.
+- **Close in the same commit.** Update the map entry, update `Verified:` on the affected decisions (or supersede them with a new record) and set planned decisions to `ACTIVE`.
+- **The map is checked too.** If `anchor-check` is available, run it before the Closing Report: it verifies that each entry's location exists and that each `[attr="value"]` selector still appears in the code. Fix any `BROK` on an entry your change touched and mention it in the report.
 
 ---
 
-## Flujo de Trabajo 4: Autoevaluación de la Skill (Eval Loop)
+## Workflow 4: Skill Self-Evaluation (Eval Loop)
 
-Cuando modifiques esta skill o configures la verificación para un nuevo repositorio, valida su efectividad mediante aislamiento:
+When you change this skill or set up verification for a new repository, validate its effectiveness in isolation:
 
-1. **Define una rúbrica objetiva (0 a 10):**
-   - *Localización:* ¿Encontró el código correcto sin explorar archivos irrelevantes?
-   - *Reproducción:* ¿Ejecutó la app real antes de editar código?
-   - *Precisión:* ¿Resolvió la causa raíz sin introducir efectos secundarios?
-   - *Evidencia:* ¿Entregó pruebas verificables del resultado?
-2. **Prueba ciega con subagentes:** Ejecuta tareas de prueba en directorios o *worktrees* aislados con nombres neutros (sin indicar en el entorno que se trata de una evaluación, para evitar sesgos de comportamiento).
-3. **Auditoría cruzada:** Revisa las llamadas a herramientas (*tool calls*) y bloques de razonamiento del subagente para detectar dónde dudó o adivinó, y refina `FEATURE_MAP.md` o los scripts de verificación hasta alcanzar una puntuación consistente.
+1. **Define an objective rubric (0 to 10):**
+   - *Localization:* Did it find the right code without exploring irrelevant files?
+   - *Reproduction:* Did it run the real app before editing code?
+   - *Precision:* Did it fix the root cause without introducing side effects?
+   - *Evidence:* Did it deliver verifiable proof of the result?
+2. **Blind test with subagents:** Run test tasks in isolated directories or *worktrees* with neutral names (without signalling in the environment that it is an evaluation, to avoid behavioral bias).
+3. **Cross-audit:** Review the subagent's tool calls and reasoning blocks to find where it hesitated or guessed, and refine `FEATURE_MAP.md` or the verification scripts until it scores consistently.

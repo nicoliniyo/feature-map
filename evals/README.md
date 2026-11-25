@@ -40,12 +40,12 @@ The task text for each scenario:
 
 ## Scoring
 
-Score each run on the rubric in the skill's Flujo de Trabajo 4, from 0 to 10 on each of four questions:
+Score each run on the rubric in the skill's Workflow 4, from 0 to 10 on each of four questions:
 
-- **Localización:** did it find the right code?
-- **Reproducción:** did it reproduce the problem before editing?
-- **Precisión:** did it fix the actual cause?
-- **Evidencia:** did it show before/after evidence?
+- **Localization:** did it find the right code?
+- **Reproduction:** did it reproduce the problem before editing?
+- **Precision:** did it fix the actual cause?
+- **Evidence:** did it show before/after evidence?
 
 Also note whether `FEATURE_MAP.md` was created or skipped in line with the skill's rule.
 

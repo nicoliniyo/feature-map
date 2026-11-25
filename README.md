@@ -7,7 +7,7 @@ A skill for Claude Code (and other agents that read `SKILL.md`) that has an agen
 - **Guardrails:** turn a mistake agents keep making into a lint rule or CI check.
 - **Eval loop:** score the skill with blind runs by subagents.
 
-The skill is written in Spanish and is based on the Pstack/Dune architecture by Lauren Tan.
+The skill is based on the Pstack/Dune architecture by Lauren Tan.
 
 ## Install
 
@@ -24,7 +24,7 @@ In Claude Code, invoke it with `/feature-map`, or let Claude load it automatical
 - **[spec-driven-development](https://skills.sh/addyosmani/agent-skills/spec-driven-development)**: the spec and its approval gates decide what to build; this skill verifies each task in the real app, using `FEATURE_MAP.md` for the route and selectors.
 - **[anchored-decisions](https://github.com/nicoliniyo/anchored-decisions)**: records why a feature is built the way it is. Its `anchor-check` CLI also checks `FEATURE_MAP.md`, reporting entries whose code location or `data-testid`/`aria-label` selectors no longer exist.
 
-The skill's "Integración con spec-driven-development y anchored-decisions" section explains how they fit together. It applies only when the project already uses one of them.
+The skill's "Integration with spec-driven-development and anchored-decisions" section explains how they fit together. It applies only when the project already uses one of them.
 
 ## Evaluation
 
